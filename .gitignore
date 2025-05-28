@@ -1,0 +1,96 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+/apps/mobile/.expo/
+/apps/mobile/dist/
+/apps/mobile/web-build/
+/apps/mobile/expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+
+# compiled output
+dist
+build
+
+# Logs
+/apps/server/logs
+/apps/server/*.log
+/apps/server/npm-debug.log*
+/apps/server/pnpm-debug.log*
+/apps/server/yarn-debug.log*
+/apps/server/yarn-error.log*
+/apps/server/lerna-debug.log*
+
+# OS
+/apps/server/.DS_Store
+
+# Tests
+/apps/server/coverage
+/apps/server/.nyc_output
+
+# IDEs and editors
+/apps/server/.idea
+/apps/server/.project
+/apps/server/.classpath
+/apps/server/.c9/
+/apps/server/*.launch
+/apps/server/.settings/
+/apps/server/*.sublime-workspace
+
+# IDE - VSCode
+/apps/server/.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
