@@ -17,9 +17,16 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS
+  // Enable CORS - Allow mobile app connections
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000', // Web frontend
+      'http://192.168.29.85:8081', // Expo Dev Server
+      'exp://192.168.29.85:8081', // Expo Go
+      'http://192.168.29.85:19000', // Expo Dev Tools
+      'http://192.168.29.85:19001', // Expo Metro bundler
+      /^http:\/\/192\.168\.29\.\d+/, // Allow any device on local network
+    ],
     credentials: true,
   });
 
@@ -27,9 +34,12 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  // Bind to all interfaces (0.0.0.0) instead of just localhost
+  await app.listen(port, '0.0.0.0');
 
-  console.log(`Application is running on: http://localhost:${port}/api/v1`);
+  console.log(`Application is running on: http://0.0.0.0:${port}/api/v1`);
+  console.log(`Local access: http://localhost:${port}/api/v1`);
+  console.log(`Network access: http://192.168.29.85:${port}/api/v1`);
 }
 
 void bootstrap();

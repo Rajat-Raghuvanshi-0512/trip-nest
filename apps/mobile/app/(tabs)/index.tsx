@@ -1,67 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../providers';
 
 export default function CameraScreen() {
+  const { isDark } = useTheme();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>TRIPSHARE</Text>
+    <SafeAreaView className="flex-1 bg-light-background dark:bg-black">
+      <View className="pt-5 px-5 pb-5 items-center">
+        <Text className="text-2xl font-bold text-light-text dark:text-white tracking-widest">
+          TRIPSHARE
+        </Text>
       </View>
       
-      <View style={styles.cameraContainer}>
-        <View style={styles.cameraPlaceholder}>
-          <Ionicons name="camera" size={80} color="#4ECDC4" />
-          <Text style={styles.cameraText}>Camera</Text>
-          <Text style={styles.subtitle}>Capture your trip moments</Text>
+      <View className="flex-1 justify-center items-center px-5">
+        <View className="items-center p-10 rounded-2xl border-2 border-dashed border-primary-500 dark:border-primary-400 bg-primary-500/10 dark:bg-primary-400/10">
+          <Ionicons name="camera" size={80} color={isDark ? "#4ECDC4" : "#14b8a6"} />
+          <Text className="text-2xl font-semibold text-light-text dark:text-white mt-4">
+            Camera
+          </Text>
+          <Text className="text-base text-light-text-secondary dark:text-dark-50 mt-2 text-center">
+            Capture your trip moments
+          </Text>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 2,
-  },
-  cameraContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  cameraPlaceholder: {
-    alignItems: 'center',
-    padding: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#4ECDC4',
-    borderStyle: 'dashed',
-    backgroundColor: 'rgba(78, 205, 196, 0.1)',
-  },
-  cameraText: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#fff',
-    marginTop: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#8E8E93',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-}); 
+} 

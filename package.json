@@ -1,0 +1,21 @@
+{
+  "name": "trip-nest",
+  "version": "1.0.0",
+  "description": "TripShare is a full-stack mobile application built with Expo (React Native) and NestJS. It allows users to create or join groups and upload high-quality images and videos during trips. These media files are automatically uploaded to the cloud and are accessible by all group members. The app aims to solve the problem of collecting and sharing trip media efficiently without compromising on quality.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev:server": "cd apps/server && yarn start:dev",
+    "dev:client": "cd apps/mobile && yarn start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@me.github.com:Rajat-Raghuvanshi-0512/trip-nest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
