@@ -126,7 +126,7 @@ export default function RegisterScreen() {
             </View>
 
             {/* Form */}
-            <View className="gap-y-6">
+            <View className="gap-y-4">
               {/* Name Row */}
               <View className="flex-row gap-x-4">
                 {/* First Name Input */}
@@ -139,7 +139,7 @@ export default function RegisterScreen() {
                     name="firstName"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base leading-tight ${
                           errors.firstName
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -171,7 +171,7 @@ export default function RegisterScreen() {
                     name="lastName"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
                           errors.lastName
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -205,7 +205,7 @@ export default function RegisterScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View className="relative">
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
                           errors.username
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -246,7 +246,7 @@ export default function RegisterScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View className="relative">
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
                           errors.email
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -288,7 +288,7 @@ export default function RegisterScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View className="relative">
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
                           errors.password
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -336,7 +336,7 @@ export default function RegisterScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View className="relative">
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
                           errors.confirmPassword
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
@@ -435,7 +435,7 @@ export default function RegisterScreen() {
               {/* Social Login */}
               <View className="gap-y-3">
                 <TouchableOpacity
-                  className="bg-light-surface dark:bg-dark-500 border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
+                  className="bg-light-surface dark:bg-dark-500 leading-tight border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
                   disabled={isLoading}
                 >
                   <Ionicons
@@ -449,7 +449,7 @@ export default function RegisterScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className="bg-light-surface dark:bg-dark-500 border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
+                  className="bg-light-surface dark:bg-dark-500 leading-tight border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
                   disabled={isLoading}
                 >
                   <Ionicons

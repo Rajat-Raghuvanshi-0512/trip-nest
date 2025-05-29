@@ -97,7 +97,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Form */}
-          <View className="gap-y-6">
+          <View className="gap-y-4">
             {/* Email/Username Input */}
             <View>
               <Text className="text-light-text dark:text-white text-base font-medium mb-2">
@@ -109,7 +109,7 @@ export default function LoginScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <View className="relative">
                     <TextInput
-                      className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
+                      className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
                         errors.emailOrUsername
                           ? "border-danger-500"
                           : "border-light-border dark:border-dark-400"
@@ -151,7 +151,7 @@ export default function LoginScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <View className="relative">
                     <TextInput
-                      className={`bg-light-surface dark:bg-dark-500 border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
+                      className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base pr-12 ${
                         errors.password
                           ? "border-danger-500"
                           : "border-light-border dark:border-dark-400"
@@ -236,7 +236,7 @@ export default function LoginScreen() {
             {/* Social Login */}
             <View className="gap-y-3">
               <TouchableOpacity
-                className="bg-light-surface dark:bg-dark-500 border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
+                className="bg-light-surface dark:bg-dark-500 leading-tight border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
                 disabled={isLoading}
               >
                 <Ionicons
@@ -251,7 +251,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="bg-light-surface dark:bg-dark-500 border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
+                className="bg-light-surface dark:bg-dark-500 leading-tight border border-light-border dark:border-dark-400 rounded-lg py-4 flex-row items-center justify-center"
                 disabled={isLoading}
               >
                 <Ionicons
