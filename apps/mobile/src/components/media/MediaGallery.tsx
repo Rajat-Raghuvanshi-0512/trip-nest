@@ -16,6 +16,7 @@ import {
 } from "../../hooks";
 import { MediaItem } from "./MediaItem";
 import { MediaPicker } from "./MediaPicker";
+import { MediaGalleryModal } from "./MediaGalleryModal";
 import type {
   MediaItem as MediaItemType,
   MediaGalleryFilters,
@@ -40,6 +41,8 @@ export function MediaGallery({
   const [showFilters, setShowFilters] = useState(false);
   const [numColumns, setNumColumns] = useState(2); // Default to 2 columns
   const [key, setKey] = useState(0); // Key to force FlatList re-render when columns change
+  const [galleryModalVisible, setGalleryModalVisible] = useState(false);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
 
   const {
     data,
@@ -70,6 +73,14 @@ export function MediaGallery({
 
   const handleUpdateCaption = (mediaId: string, caption: string) => {
     updateCaptionMutation.mutate({ mediaId, data: { caption } });
+  };
+
+  const handleMediaPress = (media: MediaItemType) => {
+    const index = mediaItems.findIndex((item) => item.id === media.id);
+    if (index !== -1) {
+      setGalleryInitialIndex(index);
+      setGalleryModalVisible(true);
+    }
   };
 
   const handleFilterToggle = (
@@ -154,6 +165,7 @@ export function MediaGallery({
           media={item}
           onDelete={handleDelete}
           onUpdateCaption={handleUpdateCaption}
+          onPress={handleMediaPress}
           size="large"
         />
       </View>
@@ -409,6 +421,15 @@ export function MediaGallery({
               }
             : undefined
         }
+      />
+
+      <MediaGalleryModal
+        visible={galleryModalVisible}
+        mediaItems={mediaItems}
+        initialIndex={galleryInitialIndex}
+        onClose={() => setGalleryModalVisible(false)}
+        onDelete={handleDelete}
+        onUpdateCaption={handleUpdateCaption}
       />
     </View>
   );

@@ -3,25 +3,36 @@ export type MediaType = 'image' | 'video';
 export interface MediaItem {
   id: string;
   groupId: string;
-  uploadedBy: string;
+  uploadedBy: {
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string;
+    createdAt: string;
+    updatedAt: string;
+    profilePictureUrl?: string;
+  };
   fileName: string;
-  originalName: string;
+  originalName?: string;
   mimeType: string;
-  size: number;
+  fileSize?: string | number;
   mediaType: MediaType;
   fileUrl: string;
   thumbnailUrl?: string;
   width?: number;
   height?: number;
   duration?: number;
-  caption?: string;
+  caption?: string | null;
   status: 'uploading' | 'processing' | 'ready' | 'completed' | 'failed';
   createdAt: string;
   updatedAt: string;
-  uploader: {
-    id: string;
-    username: string;
-    profilePictureUrl?: string;
+  metadata?: {
+    bytes?: number;
+    created_at?: string;
+    etag?: string;
+    format?: string;
   };
 }
 

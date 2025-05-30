@@ -17,7 +17,7 @@
         "expo-camera": "^16.1.6",
         "expo-constants": "~17.1.6",
         "expo-font": "~13.3.1",
-        "expo-haptics": "~14.1.4",
+        "expo-haptics": "^14.1.4",
         "expo-image": "~2.1.7",
         "expo-image-picker": "^16.1.4",
         "expo-linking": "~7.1.5",
@@ -36,6 +36,7 @@
         "react-hook-form": "^7.56.4",
         "react-native": "0.79.2",
         "react-native-gesture-handler": "~2.24.0",
+        "react-native-image-zoom-viewer": "^3.0.1",
         "react-native-reanimated": "~3.17.4",
         "react-native-safe-area-context": "5.4.0",
         "react-native-screens": "~4.10.0",
@@ -1435,6 +1436,10 @@
     "react-native-edge-to-edge": ["react-native-edge-to-edge@1.6.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-2WCNdE3Qd6Fwg9+4BpbATUxCLcouF6YRY7K+J36KJ4l3y+tWN6XCqAC4DuoGblAAbb2sLkhEDp4FOlbOIot2Og=="],
 
     "react-native-gesture-handler": ["react-native-gesture-handler@2.24.0", "", { "dependencies": { "@egjs/hammerjs": "^2.0.17", "hoist-non-react-statics": "^3.3.0", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-ZdWyOd1C8axKJHIfYxjJKCcxjWEpUtUWgTOVY2wynbiveSQDm8X/PDyAKXSer/GOtIpjudUbACOndZXCN3vHsw=="],
+
+    "react-native-image-pan-zoom": ["react-native-image-pan-zoom@2.1.12", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-BF66XeP6dzuANsPmmFsJshM2Jyh/Mo1t8FsGc1L9Q9/sVP8MJULDabB1hms+eAoqgtyhMr5BuXV3E1hJ5U5H6Q=="],
+
+    "react-native-image-zoom-viewer": ["react-native-image-zoom-viewer@3.0.1", "", { "dependencies": { "react-native-image-pan-zoom": "^2.1.12" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-la6s5DNSuq4GCRLsi5CZ29FPjgTpdCuGIRdO5T9rUrAtxrlpBPhhSnHrbmPVxsdtOUvxHacTh2Gfa9+RraMZQA=="],
 
     "react-native-is-edge-to-edge": ["react-native-is-edge-to-edge@1.1.7", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-EH6i7E8epJGIcu7KpfXYXiV2JFIYITtq+rVS8uEb+92naMRBdxhTuS8Wn2Q7j9sqyO0B+Xbaaf9VdipIAmGW4w=="],
 
