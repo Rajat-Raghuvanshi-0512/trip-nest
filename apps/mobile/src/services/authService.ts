@@ -79,7 +79,7 @@ class AuthService {
     try {
       const user = await this.getCurrentUser();
       return user;
-    } catch (error) {
+    } catch {
       // If verification fails, user is not authenticated
       return null;
     }

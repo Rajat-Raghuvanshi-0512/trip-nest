@@ -9,6 +9,11 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { User } from './models/user/entities/user.entity';
 import { RefreshToken } from './models/user/entities/refresh-token.entity';
 import { AuditLog } from './models/user/entities/audit-log.entity';
+import { Group } from './models/group/entities/group.entity';
+import { GroupMember } from './models/group/entities/group-member.entity';
+import { GroupInvite } from './models/group/entities/group-invite.entity';
+import { GroupJoinRequest } from './models/group/entities/group-join-request.entity';
+import { GroupMedia } from './models/group/entities/group-media.entity';
 
 @Module({
   imports: [
@@ -23,7 +28,16 @@ import { AuditLog } from './models/user/entities/audit-log.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'trip-nest',
-      entities: [User, RefreshToken, AuditLog],
+      entities: [
+        User,
+        RefreshToken,
+        AuditLog,
+        Group,
+        GroupMember,
+        GroupInvite,
+        GroupJoinRequest,
+        GroupMedia,
+      ],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),

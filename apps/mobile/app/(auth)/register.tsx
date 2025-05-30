@@ -139,7 +139,7 @@ export default function RegisterScreen() {
                     name="firstName"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base leading-tight ${
+                        className={`bg-light-surface dark:bg-dark-500 leading-tight border rounded-lg px-4 py-4 text-light-text dark:text-white text-base ${
                           errors.firstName
                             ? "border-danger-500"
                             : "border-light-border dark:border-dark-400"
