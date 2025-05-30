@@ -62,6 +62,10 @@ const VideoPlayer = React.memo(
         <VideoView
           player={player}
           className="w-full h-full"
+          style={{
+            width: width,
+            height: height,
+          }}
           contentFit="contain"
           nativeControls={true}
         />
@@ -376,9 +380,9 @@ export function MediaGalleryModal({
                             Uploaded by
                           </Text>
                           <Text className="text-white text-sm">
-                            {currentMedia.uploadedBy?.fullName || 
-                             currentMedia.uploadedBy?.username || 
-                             "Unknown"}
+                            {currentMedia.uploadedBy?.fullName ||
+                              currentMedia.uploadedBy?.username ||
+                              "Unknown"}
                           </Text>
                         </View>
                       </View>
@@ -536,9 +540,9 @@ export function MediaGalleryModal({
                       Uploaded by
                     </Text>
                     <Text className="text-white text-sm">
-                      {currentMedia.uploadedBy?.fullName || 
-                       currentMedia.uploadedBy?.username || 
-                       "Unknown"}
+                      {currentMedia.uploadedBy?.fullName ||
+                        currentMedia.uploadedBy?.username ||
+                        "Unknown"}
                     </Text>
                   </View>
                 </View>

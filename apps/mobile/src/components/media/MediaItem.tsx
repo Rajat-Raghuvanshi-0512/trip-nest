@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Image } from "expo-image";
-import { useVideoPlayer, VideoView } from "expo-video";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../providers";
 import { CameraUtils } from "../../utils/cameraUtils";
@@ -34,17 +33,6 @@ export function MediaItem({
     shouldShowOverlay: media.status !== "ready" && media.status !== "completed",
     fullMediaObject: media,
   });
-
-  // Create video players for thumbnail display
-  const thumbnailPlayer = useVideoPlayer(
-    media.mediaType === "video" ? media.thumbnailUrl || media.fileUrl : null,
-    (player) => {
-      if (player) {
-        player.loop = false;
-        player.muted = true;
-      }
-    }
-  );
 
   const getSizeStyles = () => {
     switch (size) {
@@ -102,13 +90,18 @@ export function MediaItem({
 
   const renderMedia = () => {
     if (media.mediaType === "video") {
+      // For video thumbnails in gallery, use the thumbnail image instead of VideoView
+      const thumbnailUrl = media.thumbnailUrl || media.fileUrl;
       return (
         <View className="relative w-full h-full">
-          <VideoView
-            player={thumbnailPlayer}
-            className="w-full h-full rounded-lg"
+          <Image
+            source={{ uri: thumbnailUrl }}
             contentFit="cover"
-            nativeControls={false}
+            transition={200}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
           />
           <View className="absolute inset-0 items-center justify-center">
             <View className="bg-black/50 rounded-full p-2">

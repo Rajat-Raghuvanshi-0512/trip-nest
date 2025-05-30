@@ -22,12 +22,18 @@ class MediaService {
     try {
       const formData = new FormData();
       
-      // Create file object from asset
+
+      // Create file object from asset with better video handling
+      const mimeType = this.getMimeType(asset);
+      const fileName = asset.fileName || this.generateFileName(asset.type);
+      
+      // For React Native, we need to create a proper file object
       const file = {
         uri: asset.uri,
-        type: this.getMimeType(asset),
-        name: asset.fileName || this.generateFileName(asset.type),
+        type: mimeType,
+        name: fileName,
       } as any;
+
 
       formData.append('file', file);
       
@@ -36,20 +42,11 @@ class MediaService {
       formData.append('mediaType', mediaType);
       
       // Add optional fields if provided
-      if (asset.fileName) {
-        formData.append('fileName', asset.fileName);
+      if (fileName) {
+        formData.append('fileName', fileName);
       }
       
-      // Debug logging
-      console.log(`[MediaService] Uploading ${mediaType} file:`, {
-        fileName: asset.fileName || this.generateFileName(asset.type),
-        fileSize: asset.fileSize,
-        mediaType,
-      });
-      
       if (options.onProgress) {
-        // For progress tracking, we'll use a different approach since FormData doesn't support progress directly
-        // We'll simulate progress for now and implement real progress in the upload method
         options.onProgress(0);
       }
 
@@ -57,6 +54,7 @@ class MediaService {
         `${this.baseUrl}/${groupId}/media`,
         formData,
         {
+          timeout: 120000, // 2 minute timeout for videos
           onUploadProgress: (progressEvent) => {
             if (options.onProgress && progressEvent.total) {
               const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -72,6 +70,8 @@ class MediaService {
         fileUrl: result.fileUrl,
         thumbnailUrl: result.thumbnailUrl,
         status: result.status,
+        fileName: result.fileName,
+        duration: result.duration,
       });
 
       if (options.onSuccess) {
@@ -79,12 +79,46 @@ class MediaService {
       }
 
       return result;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+    } catch (error: any) {
+      // Enhanced error logging for debugging
+      console.error(`[MediaService] Upload failed for ${asset.type}:`, {
+        error: error.message,
+        errorCode: error.code,
+        errorResponse: error.response?.data,
+        errorStatus: error.response?.status,
+        errorStatusText: error.response?.statusText,
+        assetType: asset.type,
+        fileName: asset.fileName,
+        fileSize: asset.fileSize,
+        uri: asset.uri,
+        stack: error.stack,
+      });
+
+      let errorMessage = 'Upload failed';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Add specific video error handling
+      if (asset.type === 'video') {
+        if (error.message?.includes('timeout')) {
+          errorMessage = 'Video upload timed out. Please try with a smaller video file.';
+        } else if (error.message?.includes('network') || error.code === 'NETWORK_ERROR') {
+          errorMessage = 'Network error during video upload. Please check your connection and try again.';
+        } else if (error.response?.status === 413) {
+          errorMessage = 'Video file is too large. Please try with a smaller file.';
+        } else if (error.response?.status === 415) {
+          errorMessage = 'Video format not supported. Please try with an MP4 file.';
+        }
+      }
+
       if (options.onError) {
         options.onError(errorMessage);
       }
-      throw error;
+      throw new Error(errorMessage);
     }
   }
 
@@ -173,8 +207,13 @@ class MediaService {
   // Helper method to generate filename
   private generateFileName(type: 'image' | 'video'): string {
     const timestamp = Date.now();
-    const extension = type === 'video' ? 'mp4' : 'jpg';
-    return `${type}_${timestamp}.${extension}`;
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    
+    if (type === 'video') {
+      return `video_${timestamp}_${randomSuffix}.mp4`;
+    }
+    
+    return `image_${timestamp}_${randomSuffix}.jpg`;
   }
 
   // Validate file size based on type

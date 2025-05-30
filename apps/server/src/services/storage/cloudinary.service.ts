@@ -48,7 +48,6 @@ export class CloudinaryService implements StorageService {
         throw new Error('Missing Cloudinary configuration');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       cloudinary.config({
         cloud_name: cloudName,
         api_key: apiKey,
@@ -73,13 +72,20 @@ export class CloudinaryService implements StorageService {
     }
 
     return new Promise<UploadResult>((resolve, reject) => {
+      const isVideo = options.resourceType === 'video';
+
       const uploadOptions = {
         folder: options.folder || 'trip-nest',
         resource_type: options.resourceType || 'auto',
         use_filename: true,
         unique_filename: true,
+        // Video-specific options
+        ...(isVideo && {
+          quality_analysis: true,
+          // Increase timeout for video uploads
+          timeout: 120000,
+        }),
       };
-
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const uploadStream = (cloudinary as any).uploader.upload_stream(
         uploadOptions,
@@ -111,6 +117,7 @@ export class CloudinaryService implements StorageService {
               duration: cloudinaryResult.duration,
               thumbnailUrl: this.generateThumbnailUrl(
                 cloudinaryResult.public_id,
+                cloudinaryResult.resource_type,
               ),
               metadata: {
                 format: cloudinaryResult.format,
@@ -188,19 +195,29 @@ export class CloudinaryService implements StorageService {
     }
   }
 
-  private generateThumbnailUrl(publicId: string): string {
+  private generateThumbnailUrl(publicId: string, resourceType: string): string {
     if (!this.isConfigured) {
       return '';
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return (cloudinary as any).url(publicId, {
+      // For videos, use video thumbnail URL format; for images, use image format
+      const isVideo = resourceType === 'video';
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const thumbnailUrl = cloudinary.url(publicId, {
         width: 300,
         height: 300,
         crop: 'fill',
         format: 'jpg',
+        quality: 'auto',
+        // For videos, we need to specify that we want an image transformation of the video
+        ...(isVideo && {
+          resource_type: 'video',
+          start_offset: '1s', // Take frame at 1 second for better thumbnails
+        }),
       });
+      return thumbnailUrl;
     } catch (error) {
       this.logger.error(
         `Failed to generate thumbnail URL for: ${publicId}`,
@@ -244,7 +261,7 @@ export class CloudinaryService implements StorageService {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       return await (cloudinary as any).api.resource(publicId);
     } catch (error) {
       this.logger.error(`Failed to get file info for: ${publicId}`, error);

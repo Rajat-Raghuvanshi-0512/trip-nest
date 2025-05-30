@@ -76,53 +76,69 @@ export class MediaService {
       );
     }
 
-    // Upload to storage
-    const uploadResult = await this.storageService.uploadFile(
-      file.buffer,
-      file.originalname,
-      {
-        folder: `groups/${groupId}/media`,
-        resourceType:
-          uploadDto.mediaType === MediaType.VIDEO ? 'video' : 'image',
-        generateThumbnail: true,
-      },
-    );
+    try {
+      // Upload to storage
+      const uploadResult = await this.storageService.uploadFile(
+        file.buffer,
+        file.originalname,
+        {
+          folder: `groups/${groupId}/media`,
+          resourceType:
+            uploadDto.mediaType === MediaType.VIDEO ? 'video' : 'image',
+          generateThumbnail: true,
+        },
+      );
 
-    // Create media record
-    const media = this.groupMediaRepository.create({
-      groupId,
-      uploadedById: userId,
-      mediaType: uploadDto.mediaType,
-      status: MediaStatus.COMPLETED,
-      fileUrl: uploadResult.secureUrl,
-      thumbnailUrl: uploadResult.thumbnailUrl,
-      fileName: uploadDto.fileName || file.originalname,
-      fileSize: file.size,
-      mimeType: file.mimetype,
-      width: uploadResult.width,
-      height: uploadResult.height,
-      duration: uploadResult.duration,
-      caption: uploadDto.caption,
-      cloudinaryPublicId: uploadResult.publicId,
-      metadata: {
-        ...uploadResult.metadata,
-        ...uploadDto.metadata,
-      },
-    });
+      // Create media record
+      const media = this.groupMediaRepository.create({
+        groupId,
+        uploadedById: userId,
+        mediaType: uploadDto.mediaType,
+        status: MediaStatus.COMPLETED,
+        fileUrl: uploadResult.secureUrl,
+        thumbnailUrl: uploadResult.thumbnailUrl,
+        fileName: uploadDto.fileName || file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        width: uploadResult.width,
+        height: uploadResult.height,
+        duration: uploadResult.duration
+          ? Math.round(uploadResult.duration)
+          : undefined,
+        caption: uploadDto.caption,
+        cloudinaryPublicId: uploadResult.publicId,
+        metadata: {
+          ...uploadResult.metadata,
+          ...uploadDto.metadata,
+        },
+      });
 
-    const savedMedia = await this.groupMediaRepository.save(media);
+      const savedMedia = await this.groupMediaRepository.save(media);
 
-    // Fetch with relations for response
-    const mediaWithRelations = await this.groupMediaRepository.findOne({
-      where: { id: savedMedia.id },
-      relations: ['uploadedBy'],
-    });
+      // Fetch with relations for response
+      const mediaWithRelations = await this.groupMediaRepository.findOne({
+        where: { id: savedMedia.id },
+        relations: ['uploadedBy'],
+      });
 
-    if (!mediaWithRelations) {
-      throw new NotFoundException('Media not found after creation');
+      if (!mediaWithRelations) {
+        throw new NotFoundException('Media not found after creation');
+      }
+
+      return new MediaResponseDto(mediaWithRelations);
+    } catch (error) {
+      console.error(`[MediaService] Upload failed:`, {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        mediaType: uploadDto.mediaType,
+        fileName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+      });
+
+      // Re-throw the original error to preserve the error details
+      throw error;
     }
-
-    return new MediaResponseDto(mediaWithRelations);
   }
 
   async getGroupMedia(
