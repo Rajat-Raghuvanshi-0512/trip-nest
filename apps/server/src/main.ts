@@ -1,9 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Check database connection status
+  try {
+    const dataSource = app.get(DataSource);
+    await dataSource.query('SELECT 1');
+    console.log('✅ Database connected successfully');
+  } catch (error) {
+    console.log('❌ Database connection failed:', error.message);
+  }
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -21,10 +31,10 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000', // Web frontend
-      'http://192.168.29.85:8081', // Expo Dev Server
-      'exp://192.168.29.85:8081', // Expo Go
-      'http://192.168.29.85:19000', // Expo Dev Tools
-      'http://192.168.29.85:19001', // Expo Metro bundler
+      'http://192.168.29.76:8081', // Expo Dev Server
+      'exp://192.168.29.76:8081', // Expo Go
+      'http://192.168.29.76:19000', // Expo Dev Tools
+      'http://192.168.29.76:19001', // Expo Metro bundler
       /^http:\/\/192\.168\.29\.\d+/, // Allow any device on local network
     ],
     credentials: true,
@@ -39,7 +49,7 @@ async function bootstrap() {
 
   console.log(`Application is running on: http://0.0.0.0:${port}/api/v1`);
   console.log(`Local access: http://localhost:${port}/api/v1`);
-  console.log(`Network access: http://192.168.29.85:${port}/api/v1`);
+  console.log(`Network access: http://192.168.29.76:${port}/api/v1`);
 }
 
 void bootstrap();

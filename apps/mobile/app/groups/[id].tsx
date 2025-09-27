@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,41 +8,50 @@ import {
   Alert,
   Share,
   RefreshControl,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import Toast from 'react-native-toast-message';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import Toast from "react-native-toast-message";
 
-import { useTheme } from '../../providers';
-import { Button } from '../../src/components/common';
-import { MemberCard } from '../../src/components/groups';
-import { MediaGallery, UploadProgress } from '../../src/components/media';
-import { groupService } from '../../src/services/groupService';
-import { mediaService } from '../../src/services/mediaService';
-import { useUploadMedia, useGroupMediaCount } from '../../src/hooks';
-import type { Group, GroupMember, GroupJoinRequest, CameraAsset, MediaUploadProgress, MediaGalleryFilters } from '../../src/types';
+import { useTheme } from "../../providers";
+import { Button } from "../../src/components/common";
+import { MemberCard } from "../../src/components/groups";
+import { MediaGallery, UploadProgress } from "../../src/components/media";
+import { groupService } from "../../src/services/groupService";
+import { mediaService } from "../../src/services/mediaService";
+import { useUploadMedia, useGroupMediaCount, useAuth } from "../../src/hooks";
+import type {
+  Group,
+  GroupMember,
+  GroupJoinRequest,
+  CameraAsset,
+  MediaUploadProgress,
+  MediaGalleryFilters,
+} from "../../src/types";
 
-type TabType = 'overview' | 'members' | 'requests' | 'media';
+type TabType = "overview" | "members" | "requests" | "media";
 
 export default function GroupDetailScreen() {
   const { isDark } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  
+  const { user } = useAuth();
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<GroupMember[]>([]);
   const [joinRequests, setJoinRequests] = useState<GroupJoinRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [currentUserRole, setCurrentUserRole] = useState<'OWNER' | 'ADMIN' | 'MEMBER'>('MEMBER');
-  
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [currentUserRole, setCurrentUserRole] = useState<
+    "OWNER" | "ADMIN" | "MEMBER"
+  >("MEMBER");
+
   // Media state
   const [uploads, setUploads] = useState<MediaUploadProgress[]>([]);
   const [mediaFilters, setMediaFilters] = useState<MediaGalleryFilters>({});
-  
+
   const uploadMediaMutation = useUploadMedia();
-  const { data: mediaCount } = useGroupMediaCount(id || '', !!id);
+  const { data: mediaCount } = useGroupMediaCount(id || "", !!id);
 
   useEffect(() => {
     if (id) {
@@ -52,37 +61,42 @@ export default function GroupDetailScreen() {
 
   const loadGroupData = useCallback(async () => {
     if (!id) return;
-    
+
     try {
       const [groupData, membersData] = await Promise.all([
         groupService.getGroup(id),
         groupService.getGroupMembers(id),
       ]);
-      
+
       setGroup(groupData);
       setMembers(membersData);
-      
+
       // Find current user's role
-      const currentUser = membersData.find(member => member.user.userId === 'current-user-id'); // Replace with actual user ID
+      const currentUser = membersData.find(
+        (member) => member.user.id === user?.userId
+      ); // Replace with actual user ID
       if (currentUser) {
         setCurrentUserRole(currentUser.role);
       }
 
       // Load join requests if user is admin
-      if (currentUser && (currentUser.role === 'OWNER' || currentUser.role === 'ADMIN')) {
+      if (
+        currentUser &&
+        (currentUser.role === "OWNER" || currentUser.role === "ADMIN")
+      ) {
         try {
           const requestsData = await groupService.getJoinRequests(id);
           setJoinRequests(requestsData);
         } catch (error) {
           // User might not have permission to view requests
-          console.log('No permission to view requests');
+          console.log("No permission to view requests");
         }
       }
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to load group data',
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to load group data",
       });
       router.back();
     } finally {
@@ -98,81 +112,79 @@ export default function GroupDetailScreen() {
 
   const handleShareInvite = async () => {
     if (!group) return;
-    
+
     try {
       await Share.share({
         message: `Join our group "${group.name}" on TripShare! Use invite code: ${group.inviteCode}`,
         title: `Join ${group.name}`,
       });
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error("Error sharing:", error);
     }
   };
 
   const handleLeaveGroup = () => {
-    Alert.alert(
-      'Leave Group',
-      'Are you sure you want to leave this group?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Leave',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await groupService.leaveGroup(id!);
-              Toast.show({
-                type: 'success',
-                text1: 'Success',
-                text2: 'You have left the group',
-              });
-              router.back();
-            } catch (error: any) {
-              Toast.show({
-                type: 'error',
-                text1: 'Error',
-                text2: error.message || 'Failed to leave group',
-              });
-            }
-          },
+    Alert.alert("Leave Group", "Are you sure you want to leave this group?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Leave",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await groupService.leaveGroup(id!);
+            Toast.show({
+              type: "success",
+              text1: "Success",
+              text2: "You have left the group",
+            });
+            router.back();
+          } catch (error: any) {
+            Toast.show({
+              type: "error",
+              text1: "Error",
+              text2: error.message || "Failed to leave group",
+            });
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleRemoveMember = async (member: GroupMember) => {
     try {
       await groupService.removeMember(id!, member.user.userId!);
       Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Member removed successfully',
+        type: "success",
+        text1: "Success",
+        text2: "Member removed successfully",
       });
       loadGroupData();
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to remove member',
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to remove member",
       });
     }
   };
 
   const handleChangeRole = async (member: GroupMember) => {
-    const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+    const newRole = member.role === "ADMIN" ? "MEMBER" : "ADMIN";
     try {
-      await groupService.changeMemberRole(id!, member.user.userId!, { role: newRole });
+      await groupService.changeMemberRole(id!, member.user.userId!, {
+        role: newRole,
+      });
       Toast.show({
-        type: 'success',
-        text1: 'Success',
+        type: "success",
+        text1: "Success",
         text2: `Role changed to ${newRole}`,
       });
       loadGroupData();
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to change role',
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to change role",
       });
     }
   };
@@ -181,16 +193,16 @@ export default function GroupDetailScreen() {
     try {
       await groupService.approveJoinRequest(requestId);
       Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Join request approved',
+        type: "success",
+        text1: "Success",
+        text2: "Join request approved",
       });
       loadGroupData();
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to approve request',
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to approve request",
       });
     }
   };
@@ -199,16 +211,16 @@ export default function GroupDetailScreen() {
     try {
       await groupService.rejectJoinRequest(requestId);
       Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Join request rejected',
+        type: "success",
+        text1: "Success",
+        text2: "Join request rejected",
       });
       loadGroupData();
     } catch (error: any) {
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message || 'Failed to reject request',
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Failed to reject request",
       });
     }
   };
@@ -222,8 +234,8 @@ export default function GroupDetailScreen() {
       const validation = mediaService.validateFileSize(asset);
       if (!validation.valid) {
         Toast.show({
-          type: 'error',
-          text1: 'File Too Large',
+          type: "error",
+          text1: "File Too Large",
           text2: validation.error,
         });
         continue;
@@ -232,12 +244,12 @@ export default function GroupDetailScreen() {
       const uploadId = `upload_${Date.now()}_${Math.random()}`;
       const uploadProgress: MediaUploadProgress = {
         id: uploadId,
-        fileName: asset.fileName || 'Unknown file',
+        fileName: asset.fileName || "Unknown file",
         progress: 0,
-        status: 'uploading',
+        status: "uploading",
       };
 
-      setUploads(prev => [...prev, uploadProgress]);
+      setUploads((prev) => [...prev, uploadProgress]);
 
       try {
         await uploadMediaMutation.mutateAsync({
@@ -245,29 +257,41 @@ export default function GroupDetailScreen() {
           asset,
           options: {
             onProgress: (progress) => {
-              setUploads(prev => prev.map(upload => 
-                upload.id === uploadId 
-                  ? { ...upload, progress, status: progress === 100 ? 'processing' : 'uploading' }
-                  : upload
-              ));
+              setUploads((prev) =>
+                prev.map((upload) =>
+                  upload.id === uploadId
+                    ? {
+                        ...upload,
+                        progress,
+                        status: progress === 100 ? "processing" : "uploading",
+                      }
+                    : upload
+                )
+              );
             },
             onSuccess: () => {
-              setUploads(prev => prev.map(upload => 
-                upload.id === uploadId 
-                  ? { ...upload, progress: 100, status: 'completed' }
-                  : upload
-              ));
+              setUploads((prev) =>
+                prev.map((upload) =>
+                  upload.id === uploadId
+                    ? { ...upload, progress: 100, status: "completed" }
+                    : upload
+                )
+              );
               // Remove completed upload after 3 seconds
               setTimeout(() => {
-                setUploads(prev => prev.filter(upload => upload.id !== uploadId));
+                setUploads((prev) =>
+                  prev.filter((upload) => upload.id !== uploadId)
+                );
               }, 3000);
             },
             onError: (error) => {
-              setUploads(prev => prev.map(upload => 
-                upload.id === uploadId 
-                  ? { ...upload, status: 'failed', error }
-                  : upload
-              ));
+              setUploads((prev) =>
+                prev.map((upload) =>
+                  upload.id === uploadId
+                    ? { ...upload, status: "failed", error }
+                    : upload
+                )
+              );
             },
           },
         });
@@ -278,41 +302,46 @@ export default function GroupDetailScreen() {
   };
 
   const handleCancelUpload = (uploadId: string) => {
-    setUploads(prev => prev.filter(upload => upload.id !== uploadId));
+    setUploads((prev) => prev.filter((upload) => upload.id !== uploadId));
   };
 
   const handleRetryUpload = (uploadId: string) => {
     // For now, just remove the failed upload
     // In a real implementation, you'd retry the upload
-    setUploads(prev => prev.filter(upload => upload.id !== uploadId));
+    setUploads((prev) => prev.filter((upload) => upload.id !== uploadId));
   };
 
-  const renderTabButton = (tab: TabType, title: string, icon: string, count?: number) => (
+  const renderTabButton = (
+    tab: TabType,
+    title: string,
+    icon: string,
+    count?: number
+  ) => (
     <TouchableOpacity
-      className={`flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl ${
-        activeTab === tab 
-          ? 'bg-primary-500 dark:bg-primary-400' 
-          : 'bg-light-surface dark:bg-dark-400'
-      }`}
+      className={`flex-1 items-center justify-center py-4 px-3 min-w-[70px]`}
       onPress={() => setActiveTab(tab)}
     >
-      <Ionicons 
-        name={icon as keyof typeof Ionicons.glyphMap} 
-        size={18} 
-        color={activeTab === tab ? 'white' : (isDark ? '#A1A1AA' : '#6B7280')} 
-      />
-      <Text className={`ml-2 font-medium ${
-        activeTab === tab 
-          ? 'text-white' 
-          : 'text-light-text-secondary dark:text-dark-50'
-      }`}>
-        {title}
-      </Text>
-      {count !== undefined && count > 0 && (
-        <View className="ml-1 bg-danger-500 rounded-full w-5 h-5 items-center justify-center">
-          <Text className="text-xs text-white font-bold">{count}</Text>
-        </View>
-      )}
+      <View className="items-center">
+        <Ionicons
+          name={icon as keyof typeof Ionicons.glyphMap}
+          size={18}
+          color={activeTab === tab ? "white" : isDark ? "#A1A1AA" : "#6B7280"}
+        />
+        <Text
+          className={`ml-2 font-medium ${
+            activeTab === tab
+              ? "text-white"
+              : "text-light-text-secondary dark:text-dark-50"
+          }`}
+        >
+          {title}
+        </Text>
+        {count !== undefined && count > 0 && (
+          <View className="ml-1 bg-danger-500 rounded-full w-5 h-5 items-center justify-center">
+            <Text className="text-xs text-white font-bold">{count}</Text>
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 
@@ -322,7 +351,11 @@ export default function GroupDetailScreen() {
       <View className="bg-light-surface dark:bg-dark-400 rounded-2xl p-6 mb-6 border border-light-border dark:border-dark-300">
         <View className="items-center mb-6">
           <View className="w-20 h-20 rounded-3xl bg-primary-100 dark:bg-primary-900 items-center justify-center mb-4">
-            <Ionicons name="people" size={32} color={isDark ? '#4ECDC4' : '#14b8a6'} />
+            <Ionicons
+              name="people"
+              size={32}
+              color={isDark ? "#4ECDC4" : "#14b8a6"}
+            />
           </View>
           <Text className="text-2xl font-bold text-light-text dark:text-white text-center">
             {group?.name}
@@ -351,13 +384,15 @@ export default function GroupDetailScreen() {
             </Text>
           </View>
           <View className="items-center">
-            <View className={`w-3 h-3 rounded-full ${
-              group?.isAtCapacity 
-                ? 'bg-danger-500' 
-                : (group?.memberCount || 0) / (group?.maxMembers || 1) > 0.8 
-                  ? 'bg-yellow-500' 
-                  : 'bg-green-500'
-            }`} />
+            <View
+              className={`w-3 h-3 rounded-full ${
+                group?.isAtCapacity
+                  ? "bg-danger-500"
+                  : (group?.memberCount || 0) / (group?.maxMembers || 1) > 0.8
+                  ? "bg-yellow-500"
+                  : "bg-green-500"
+              }`}
+            />
             <Text className="text-sm text-light-text-secondary dark:text-dark-50 mt-1">
               Status
             </Text>
@@ -381,14 +416,20 @@ export default function GroupDetailScreen() {
             variant="outline"
             size="small"
             onPress={handleShareInvite}
-            icon={<Ionicons name="share-outline" size={16} color={isDark ? '#4ECDC4' : '#14b8a6'} />}
+            icon={
+              <Ionicons
+                name="share-outline"
+                size={16}
+                color={isDark ? "#4ECDC4" : "#14b8a6"}
+              />
+            }
           />
         </View>
       </View>
 
       {/* Actions */}
       <View className="gap-y-3">
-        {currentUserRole !== 'OWNER' && (
+        {currentUserRole !== "OWNER" && (
           <Button
             title="Leave Group"
             variant="danger"
@@ -426,7 +467,11 @@ export default function GroupDetailScreen() {
       </Text>
       {joinRequests.length === 0 ? (
         <View className="items-center py-12">
-          <Ionicons name="checkmark-circle" size={60} color={isDark ? '#4ECDC4' : '#14b8a6'} />
+          <Ionicons
+            name="checkmark-circle"
+            size={60}
+            color={isDark ? "#4ECDC4" : "#14b8a6"}
+          />
           <Text className="text-lg font-medium text-light-text dark:text-white mt-4">
             No Pending Requests
           </Text>
@@ -436,7 +481,10 @@ export default function GroupDetailScreen() {
         </View>
       ) : (
         joinRequests.map((request) => (
-          <View key={request.id} className="bg-light-surface dark:bg-dark-400 rounded-xl p-4 mb-3 border border-light-border dark:border-dark-300">
+          <View
+            key={request.id}
+            className="bg-light-surface dark:bg-dark-400 rounded-xl p-4 mb-3 border border-light-border dark:border-dark-300"
+          >
             <View className="flex-row items-center justify-between">
               <View className="flex-1">
                 <Text className="text-base font-semibold text-light-text dark:text-white">
@@ -493,7 +541,11 @@ export default function GroupDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-light-background dark:bg-black">
         <View className="flex-1 items-center justify-center">
-          <Ionicons name="people" size={60} color={isDark ? "#4ECDC4" : "#14b8a6"} />
+          <Ionicons
+            name="people"
+            size={60}
+            color={isDark ? "#4ECDC4" : "#14b8a6"}
+          />
           <Text className="text-lg text-light-text-secondary dark:text-dark-50 mt-4">
             Loading group...
           </Text>
@@ -507,41 +559,53 @@ export default function GroupDetailScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between px-5 py-4 border-b border-light-border dark:border-dark-300">
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={isDark ? "#FFFFFF" : "#000000"}
+          />
         </TouchableOpacity>
         <Text className="text-xl font-semibold text-light-text dark:text-white">
           {group?.name}
         </Text>
         <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+          <Ionicons
+            name="ellipsis-horizontal"
+            size={24}
+            color={isDark ? "#FFFFFF" : "#000000"}
+          />
         </TouchableOpacity>
       </View>
 
       {/* Tabs */}
       <View className="flex-row gap-x-2 px-5 py-4">
-        {renderTabButton('overview', 'Overview', 'information-circle-outline')}
-        {renderTabButton('media', 'Media', 'images-outline', mediaCount?.count)}
-        {renderTabButton('members', 'Members', 'people-outline')}
-        {(currentUserRole === 'OWNER' || currentUserRole === 'ADMIN') && 
-          renderTabButton('requests', 'Requests', 'person-add-outline', joinRequests.length)
-        }
+        {renderTabButton("overview", "Overview", "information-circle-outline")}
+        {renderTabButton("media", "Media", "images-outline", mediaCount?.count)}
+        {renderTabButton("members", "Members", "people-outline")}
+        {(currentUserRole === "OWNER" || currentUserRole === "ADMIN") &&
+          renderTabButton(
+            "requests",
+            "Requests",
+            "person-add-outline",
+            joinRequests.length
+          )}
       </View>
 
       {/* Content */}
-      <ScrollView 
-        className="flex-1" 
+      <ScrollView
+        className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         <View className="pb-6">
-          {activeTab === 'overview' && renderOverviewTab()}
-          {activeTab === 'members' && renderMembersTab()}
-          {activeTab === 'requests' && renderRequestsTab()}
-          {activeTab === 'media' && renderMediaTab()}
+          {activeTab === "overview" && renderOverviewTab()}
+          {activeTab === "members" && renderMembersTab()}
+          {activeTab === "requests" && renderRequestsTab()}
+          {activeTab === "media" && renderMediaTab()}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-} 
+}

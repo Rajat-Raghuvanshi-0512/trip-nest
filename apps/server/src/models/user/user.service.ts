@@ -117,24 +117,32 @@ export class UserService {
     });
 
     if (!user) {
-      await this.auditService.logLoginFailure({
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        details: `Login attempt with invalid identifier: ${loginDto.emailOrUsername}`,
-        errorMessage: 'User not found',
-      });
+      try {
+        await this.auditService.logLoginFailure({
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          details: `Login attempt with invalid identifier: ${loginDto.emailOrUsername}`,
+          errorMessage: 'User not found',
+        });
+      } catch (error) {
+        console.error('Failed to log user not found:', error.message);
+      }
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // Check if account is locked
     if (user.isLocked) {
-      await this.auditService.logLoginFailure({
-        userId: user.id,
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        details: 'Login attempt on locked account',
-        errorMessage: 'Account locked',
-      });
+      try {
+        await this.auditService.logLoginFailure({
+          userId: user.id,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          details: 'Login attempt on locked account',
+          errorMessage: 'Account locked',
+        });
+      } catch (error) {
+        console.error('Failed to log locked account attempt:', error.message);
+      }
       throw new UnauthorizedException(
         'Account is temporarily locked due to too many failed attempts',
       );
@@ -142,13 +150,17 @@ export class UserService {
 
     // Check if account is active
     if (!user.isActive) {
-      await this.auditService.logLoginFailure({
-        userId: user.id,
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        details: 'Login attempt on inactive account',
-        errorMessage: 'Account inactive',
-      });
+      try {
+        await this.auditService.logLoginFailure({
+          userId: user.id,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          details: 'Login attempt on inactive account',
+          errorMessage: 'Account inactive',
+        });
+      } catch (error) {
+        console.error('Failed to log inactive account attempt:', error.message);
+      }
       throw new UnauthorizedException('Account is not active');
     }
 
@@ -183,15 +195,26 @@ export class UserService {
       username: user.username,
     });
 
-    // Save refresh token
-    await this.saveRefreshToken(user.id, tokens.refreshToken, context);
+    // Save refresh token (with error handling)
+    try {
+      await this.saveRefreshToken(user.id, tokens.refreshToken, context);
+    } catch (error) {
+      console.error('Failed to save refresh token:', error.message);
+      // Continue with login even if refresh token save fails
+      // The user can still use the access token
+    }
 
-    // Log successful login
-    await this.auditService.logLoginSuccess(user.id, {
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      details: 'Successful login',
-    });
+    // Log successful login (with error handling)
+    try {
+      await this.auditService.logLoginSuccess(user.id, {
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+        details: 'Successful login',
+      });
+    } catch (error) {
+      console.error('Failed to log successful login:', error.message);
+      // Continue with login even if audit logging fails
+    }
 
     return {
       user: this.sanitizeUser(user),
@@ -296,23 +319,33 @@ export class UserService {
     if (newFailedAttempts >= this.maxFailedAttempts) {
       updateData.lockedUntil = new Date(Date.now() + this.lockoutDuration);
 
-      await this.auditService.logAccountLocked(user.id, {
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        details: `Account locked after ${this.maxFailedAttempts} failed attempts`,
-      });
+      try {
+        await this.auditService.logAccountLocked(user.id, {
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          details: `Account locked after ${this.maxFailedAttempts} failed attempts`,
+        });
+      } catch (error) {
+        console.error('Failed to log account locked:', error.message);
+        // Continue with account locking even if audit logging fails
+      }
     }
 
     await this.userRepository.update(user.id, updateData);
 
-    // Log failed attempt
-    await this.auditService.logLoginFailure({
-      userId: user.id,
-      ipAddress: context.ipAddress,
-      userAgent: context.userAgent,
-      details: `Failed login attempt ${newFailedAttempts}/${this.maxFailedAttempts}`,
-      errorMessage: 'Invalid password',
-    });
+    // Log failed attempt (with error handling)
+    try {
+      await this.auditService.logLoginFailure({
+        userId: user.id,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+        details: `Failed login attempt ${newFailedAttempts}/${this.maxFailedAttempts}`,
+        errorMessage: 'Invalid password',
+      });
+    } catch (error) {
+      console.error('Failed to log login failure:', error.message);
+      // Continue with failed login handling even if audit logging fails
+    }
   }
 
   private async saveRefreshToken(
